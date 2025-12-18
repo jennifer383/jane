@@ -1,0 +1,141 @@
+server:
+  port: 8081
+  address: 0.0.0.0  # 绑定到所有网络接口，解决IPv6绑定问题
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+# 跨域配置 - 允许指定的源IP地址
+cors:
+  allowed-origins:
+    - "http://localhost"     # 生产环境前端地址
+    - "http://localhost:8080"  # 明确指定80端口
+    - "https://localhost"    # HTTPS版本
+    - "https://localhost:8080" # HTTPS 80端口
+    # - "http://115.190.14.86:8080" # 可能的8080端口
+  allowed-methods:
+    - GET
+    - POST
+    - PUT
+    - DELETE
+    - OPTIONS
+  allowed-headers:
+    - "Content-Type"
+    - "Authorization"
+    - "X-Requested-With"
+    - "Accept"
+    - "Origin"
+  allow-credentials: true
+  max-age: 3600
+
+spring:
+  autoconfigure:
+    exclude:
+       # 排除OpenAI嵌入模型自动配置以避免冲突
+#      - org.springframework.ai.model.openai.autoconfigure.OpenAiEmbeddingAutoConfiguration
+#      排除Ollama嵌入模型自动配置以避免冲突
+      - org.springframework.ai.model.ollama.autoconfigure.OllamaEmbeddingAutoConfiguration
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  application:
+    name: Jane_ai
+  ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+#            platform: postgres
+            platform: mariadb
+   # Ollama AI 配置
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}  # 默认本地地址
+      chat:
+        enabled: true
+        model: llama3.2:3b  # 使用的AI模型
+        options:
+          temperature: 0.7 # 可选：由你决定
+      # Embedding 已禁用，使用 OpenAI Embedding 作为主模型
+      embedding:
+        enabled: true
+        model: nomic-embed-text
+  # OpenAI 兼容接口配置
+    openai:
+      base-url: ${OPENAI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}  # 阿里云兼容接口
+      api-key: ${OPENAI_API_KEY:sk-87ef17c0ca8444c2a052154d7c0423ae}  # 通过环境变量注入API密钥
+      chat:
+        options:
+          model: ${OPENAI_MODEL:qwen-turbo}  # 使用的模型
+          temperature: 1.3  # 生成温度参数
+      embedding:
+        options:
+          model: ${EMBEDDING_MODEL:text-embedding-v3}   #嵌入模型 向量维度为 1024，表示每个文本嵌入的向量长度。
+          dimensions: 1024 #向量维度
+    # DeepSeek 配置
+    deepseek:
+      base-url: ${DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      api-key: ${DEEPSEEK_API_KEY:sk-cb79eb1f9c8c421ea324c1e3c3a5e007}  # 通过环境变量注入API密钥
+      chat:
+        options:
+          model: ${DEEPSEEK_MODEL:deepseek-chat}  # 使用的模型
+          temperature: 1.0
+    # Pinecone 向量数据库配置
+    vectorstore:
+      pinecone:
+        api-key: ${PINECONE_API_KEY:pcsk_5XAT18_43SZoou7DqPAMSaUBU2mjY4kw4dYkbNe6ApNRrzAtdTkZadSuMZjyUznzwExzR5}   # 通过环境变量注入API密钥  11
+        index-name: ${PINECONE_INDEX:jane}  # 索引名称
+        project-id: ${PINECONE_PROJECT_ID:c73urq2}  # 项目ID 11
+        environment: ${PINECONE_ENV:aped-4627-b74a}  # 环境名称
+#        namespace: jane
+
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+#      ssl: true  # ⚠️ 一定要开启
+      password: ${REDIS_PASSWORD:qas484947002}
+      database: ${REDIS_DATABASE:0}
+      timeout: 10s
+      lettuce:
+        pool:
+          max-active: 32
+          max-idle: 16
+          min-idle: 4
+          max-wait: 5000ms
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DATASOURCE_URL:jdbc:mysql://localhost:3306/DeepProfileMatrix?useSSL=false&useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&tinyInt1isBit=false}
+    username: ${DATASOURCE_USERNAME:progressive-JPL}
+    password: ${DATASOURCE_PASSWORD:qas484947002}
+
+com:
+  jane:
+    jwt:
+      user-secret-key: ${JWT_SECRET_KEY:janeaichatjaneaichatjaneaichat2025072121929up}  # JWT加密密钥通过环境变量注入
+      user-ttl: 8640000 # JWT有效期（毫秒）
+    bloom:
+      bloom-filter-name: jane_bloom_filter
+      expected-insertions: 1000
+      false-probability: 0.01
+mybatis:
+  mapper-locations: classpath*:mapper/**/*.xml # xml文件
+xxl:
+  job:
+    admin:
+      addresses: http://localhost:9090/xxl-job-admin
+      accessToken: default_token
+      timeout: 3
+    executor:
+      appname: jane
+      address: ''
+#      一定要指定以下信息
+      ip: localhost
+      port: 9999
+      logpath: /data/applogs/xxl-job/jobhandler
+      logretentiondays: 30
+

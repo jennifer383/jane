@@ -1,0 +1,16 @@
+.theme-dark {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --sidebar-bg: #1e1f25;
+    --sidebar-hover: #2d2f3a;
+    --sidebar-active: #3a3d4a;
+    --content-bg: #121318;
+    --chat-bg: #0f1015;
+    --user-msg: #343541;
+    --ai-msg: #444654;
+    --text-primary: #f1f1f1;
+    --text-secondary: #b4b4b8;
+    --text-tertiary: #8a8a94;
+    --border-color: #2d2f3a;
+    --input-bg: #2d2f3a;
+  }

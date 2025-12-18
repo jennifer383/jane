@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--status="INFO"：配置日志本身的输出级别，只用于调试 log4j2 启动过程，比如格式错误时会打印到控制台。可设为
+OFF、ERROR、INFO、DEBUG 等。-->
+<!-- 优先级从高到低分别是：OFF、FATAL、ERROR、WARN、INFO、DEBUG、TRACE、ALL -->
+<!--Log4j2 会每 600 秒（10 分钟）检查一次配置文件是否有修改，自动重新加载配置，方便动态修改日志配置。-->
+<Configuration status="INFO"  monitorInterval="600">
+
+    <Properties>
+        <!-- 日志目录和文件名配置 -->
+        <Property name="LOG_HOME">.</Property>
+        <Property name="FILE_NAME">Jane_application</Property>
+        <Property name="ENCODING">UTF-8</Property>
+        <Property name="PATTERN">[%d{yyyy-MM-dd HH:mm:ss}] [%t] %-5level %logger{36} [%F:%L] - %msg%n</Property>
+    </Properties>
+
+    <Appenders>  <!-- Appenders（日志输出器）-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!--表示输出到控制台（也可配置为 File, RollingFile 等）。-->
+            <!--：输出到标准输出（控制台）；可选 SYSTEM_ERR-->
+            <PatternLayout pattern="${PATTERN}"/>
+        <!--patternLayout 指定日志输出格式-->
+        </Console>
+
+        <!-- 文件输出 -->
+        <RollingFile name="RollingFile"
+                     fileName="${LOG_HOME}/logs/${FILE_NAME}.log"
+                     filePattern="${LOG_HOME}/logs/$${date:yyyy-MM}/${FILE_NAME}-%d{yyyy-MM-dd}-%i.log.gz">
+            <!--含义：日志文件的归档路径和命名规则，满足滚动策略时触发。-->
+            <PatternLayout pattern="${PATTERN}" charset="${ENCODING}" />
+            <Policies>
+                <!-- 每天切分，每个文件最大100MB -->
+                <!--从每天的00:00起算，不是从程序启动时算。-->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="100 MB" />
+            </Policies>
+            <!-- 最多保留30个归档日志文件 -->
+            <DefaultRolloverStrategy max="5" />
+        </RollingFile>
+
+        <!--错误日志输出-->
+        <RollingFile name="ErrorRollingFile"
+                      fileName="${LOG_HOME}/logs/${FILE_NAME}-error.log"
+                      filePattern="${LOG_HOME}/logs/error/$${date:yyyy-MM}/${FILE_NAME}-error-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${PATTERN}" charset="${ENCODING}" />
+            <ThresholdFilter level="ERROR"/>
+            <Policies>
+                <!-- 每天切分，每个文件最大100MB -->
+                <!--从每天的00:00起算，不是从程序启动时算。-->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="100 MB" />
+            </Policies>
+            <!-- 最多保留30个归档日志文件 -->
+            <DefaultRolloverStrategy max="5" />
+
+        </RollingFile>
+
+
+    </Appenders>
+
+    <Loggers>
+        <!-- 过滤掉 spring 和 mybatis 的无用 DEBUG 信息 --><!--包级-->
+        <logger name="org.springframework.ai.chat.client" level="INFO" additivity="true"/>
+        <logger name="org.mybatis" level="INFO" additivity="true"/>
+        <logger name="org.springframework" level="INFO" additivity="true"/>
+        <logger name="org.apache.ibatis" level="INFO" additivity="true"/>
+        <logger name="jdk.internal" level="INFO" additivity="true"/>
+        <logger name="jdk.event" level="INFO" additivity="true"/>
+        <logger name="sun.rmi" level="INFO" additivity="true"/>
+        <logger name="javax.management" level="INFO" additivity="true"/>
+        <logger name="org.apache" level="INFO" additivity="true"/>
+        <logger name="com.baomidou" level="INFO" additivity="true"/>
+        <!--类级 最小粒度-->
+<!--        <Logger name="com.example.service.UserService" level="TRACE"/>-->
+        <!--根级-->
+        <Root level="INFO">
+            <!--最低记录级别为 `INFO`，也就是只有 `INFO`、`WARN`、`ERROR`、`FATAL` 会被输出；`DEBUG` 或 `TRACE` 不会显示。-->
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="RollingFile"/>
+            <AppenderRef ref="ErrorRollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>

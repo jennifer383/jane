@@ -1,0 +1,154 @@
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --sidebar-bg: #1e1f25;
+  --sidebar-hover: #2d2f3a;
+  --sidebar-active: #3a3d4a;
+  --content-bg: #121318;
+  --chat-bg: #0f1015;
+  --user-msg: #343541;
+  --ai-msg: #444654;
+  --text-primary: #f1f1f1;
+  --text-secondary: #b4b4b8;
+  --text-tertiary: #8a8a94;
+  --border-color: #2d2f3a;
+  --input-bg: #2d2f3a;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+html {
+  scrollbar-color: var(--primary) var(--sidebar-bg);
+  scrollbar-width: thin;
+}
+
+body {
+  background: var(--content-bg);
+  color: var(--text-primary);
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  position: relative;
+}
+
+.mobile-menu-btn {
+  display: none;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: var(--sidebar-bg);
+  border: 1px solid var(--border-color);
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+/* 响应式样式 */
+@media (max-width: 768px) {
+  .sidebar {
+    position: absolute;
+    height: 100%;
+    transform: translateX(-100%);
+  }
+
+  .sidebar.active {
+    transform: translateX(0);
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .message {
+    max-width: 95%;
+  }
+
+  .message-content {
+    max-width: 85%;
+  }
+}
+
+/* 美化全局滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background-color: var(--sidebar-bg);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--sidebar-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 8px;
+  border: 2px solid var(--sidebar-bg);
+  transition: background-color 0.15s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary-dark);
+}
+
+/* 聊天容器滚动条样式 */
+.chat-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.chat-container::-webkit-scrollbar-track {
+  background: var(--chat-bg);
+}
+
+.chat-container::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 8px;
+}
+
+.chat-container::-webkit-scrollbar-thumb:hover {
+  background-color: var(--primary-dark);
+}
+
+.collapse-btn {
+  /* 按钮基础样式 */
+  background: var(--sidebar-bg);
+  border: none;
+  color: var(--text-primary);
+  font-size: 18px;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: background 0.1s, color 0.1s;
+  z-index: 101;
+  /* 你可以加 margin-left/right/top/bottom 来微调 */
+}
+
+.collapsed-btn {
+  position: absolute;
+  left: 50%;
+  top: 56px;         /* 距离顶部的距离，可调 */
+  transform: translateX(-50%);
+  margin-top: 8px;   /* 可调节按钮与logo的间距 */
+}

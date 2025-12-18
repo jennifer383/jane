@@ -1,0 +1,21 @@
+.theme-blue {
+     --primary: #9ca3af;         /* 主色 - 明亮中灰 */
+  --primary-dark: #6b7280;    /* 主色 - 稍深一点 */
+
+  --sidebar-bg: #f3f4f6;      /* 侧边栏背景 - 亮灰 */ 
+  --sidebar-hover: #e5e7eb;   /* 侧边栏悬停 - 更亮 */
+  --sidebar-active: #d1d5db;  /* 侧边栏选中 - 浅灰蓝感 */
+
+  --content-bg: #f9fafb;      /* 内容区背景 - 接近白色 */
+  --chat-bg: #f3f4f6;         /* 聊天背景 - 柔和亮灰 */
+
+  --user-msg: #e2e8f0;        /* 用户消息气泡 - 浅灰蓝 */
+  --ai-msg: #dbeafe;          /* AI 消息气泡 - 柔和淡蓝灰 */
+
+  --text-primary: #1f2937;    /* 主文本 - 深灰偏蓝，清晰 */
+  --text-secondary: #4b5563;  /* 次文本 - 中灰 */
+  --text-tertiary: #6b7280;   /* 辅助文本 - 稍浅灰蓝 */
+
+  --border-color: #d1d5db;    /* 边框颜色 - 亮灰边线 */
+  --input-bg: #e5e7eb;        /* 输入框背景 - 柔亮灰 */
+  }

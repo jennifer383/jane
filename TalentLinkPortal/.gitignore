@@ -1,0 +1,12 @@
+# 依赖目录
+node_modules/
+
+# 构建输出
+dist/
+
+# 开发环境变量
+.env.development
+.env.production
+
+# 类型定义文件
+*.d.ts

@@ -1,0 +1,16 @@
+.theme-green {
+    --primary: #f9a8d4;
+    --primary-dark: #f472b6;
+    --sidebar-bg: #fdf2f8;
+    --sidebar-hover: #fbcfe8;
+    --sidebar-active: #f9a8d4;
+    --content-bg: #fff1f2;
+    --chat-bg: #fff9fb;
+    --user-msg: #fce7f3;
+    --ai-msg: #fbcfe8;
+    --text-primary: #831843;
+    --text-secondary: #9d174d;
+    --text-tertiary: #be185d;
+    --border-color: #f9a8d4;
+    --input-bg: #fdf2f8;
+}
