@@ -1,3 +1,4 @@
+[readMe.md](https://github.com/user-attachments/files/24233412/readMe.md)
 
           
 # Jane AI 项目文档
@@ -167,7 +168,7 @@
    ```
 
 3. **访问前端应用**
-   - 开发服务器启动后，访问 `http://localhost:5173` 查看前端应用
+   - 开发服务器启动后，访问 `http://localhost:8080` 查看前端应用
    - 如果可以正常访问前端界面，则前端启动成功
 
 ## 5. 使用说明
@@ -175,7 +176,7 @@
 ### 5.1 前端使用
 
 #### 5.1.1 登录/注册
-1. 访问前端应用 `http://localhost:5173`
+1. 访问前端应用 `http://localhost:8080`
 2. 点击右上角的登录/注册按钮
 3. 输入用户名和密码进行登录，或点击注册新用户
 
@@ -199,7 +200,7 @@
 ### 5.2 后端 API 使用
 
 #### 5.2.1 Swagger UI
-1. 访问 `http://localhost:8080/swagger-ui/index.html`
+1. 访问 `http://localhost:8081/swagger-ui/index.html`
 2. 在 Swagger UI 中查看所有可用的 API 接口
 3. 点击接口名称查看详细信息，包括请求参数、响应格式等
 4. 点击 "Try it out" 按钮进行在线接口测试
@@ -271,7 +272,7 @@
 ### 7.1 Swagger UI 访问失败
 - 确保后端应用已成功启动
 - 检查 `RequestFreeAllowStrategyImpl.java` 中是否包含 Swagger UI 路径
-- 检查防火墙设置，确保端口 8080 开放
+- 检查防火墙设置，确保端口 8081 开放
 
 ### 7.2 前端模型切换异常
 - 检查前端控制台是否有错误信息
