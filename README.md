@@ -1,6 +1,3 @@
-[readMe.md](https://github.com/user-attachments/files/24233412/readMe.md)
-
-          
 # Jane AI 项目文档
 
 ## 1. 技术栈
