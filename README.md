@@ -1,32 +1,4 @@
-[readMe.md](https://github.com/user-attachments/files/24233339/readMe.md)
-我需要了解项目的整体结构，先查看根目录下的文件，了解项目的组成。
-        
-            
-toolName: view_folder
-            
-status: success
-          
-E:\A毕设\jane
-          
-我需要查看后端的pom.xml文件，了解后端的依赖和技术栈。
-        
-            
-toolName: view_files
-            
-status: success
-          
-            
-filePath: E:\A毕设\jane\DeepProfileMatrix\pom.xml
-          
-我需要查看前端的package.json文件，了解前端的技术栈。
-        
-            
-toolName: view_files
-            
-status: success
-          
-            
-filePath: E:\A毕设\jane\TalentLinkPortal\package.json
+
           
 # Jane AI 项目文档
 
