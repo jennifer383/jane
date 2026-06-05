@@ -3,7 +3,6 @@ package com.common.jane_ai.config;
 import com.common.jane_ai.advisor.RedisChatHistoryAdvisor;
 import com.common.jane_ai.advisor.RedisChatHistoryTitleAdvisor;
 import com.common.jane_ai.functioncalling.JaneMarkController;
-import com.common.jane_ai.rag.MarkdownLoader;
 import com.common.jane_ai.redis_chat_memory.RedisChatMemoryRepository;
 import com.common.jane_ai.redis_chat_memory.dialect.RedisChatMemoryRepositoryDialect;
 import com.common.jane_ai.service.ModelService;
@@ -18,12 +17,9 @@ import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.deepseek.DeepSeekChatModel;
 import org.springframework.ai.document.Document;
-
-import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiEmbeddingModel;
-import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.pinecone.PineconeVectorStore;
@@ -33,10 +29,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.support.ResourcePatternResolver;
-
 
 import java.util.List;
 
@@ -49,12 +43,8 @@ public class JaneAIConfiguration{
 
     @Value("${spring.ai.vectorstore.pinecone.api-key}")
     private String pineconeApiKey;
-
     @Value("${spring.ai.vectorstore.pinecone.index-name}")
     private String pineconeIndexName;
-
-
-
 
     @Autowired
     private RedisChatHistoryAdvisorService redisChatHistoryAdvisorService;
@@ -64,10 +54,7 @@ public class JaneAIConfiguration{
         return new RedisChatMemoryRepository(dialect);
     }
 
-    @Bean
-    public MarkdownLoader markdownLoader(ResourcePatternResolver resourcePatternResolver) {
-        return new MarkdownLoader(resourcePatternResolver);
-    }
+
 
 
     @Bean
@@ -84,7 +71,8 @@ public class JaneAIConfiguration{
 
 
 
-
+    // 注意：保留配置在 application.yml；Spring AI 的自动配置会创建 `vectorStore` bean。
+    // 为避免与自动配置产生 bean 名称冲突，这里不再手动定义 VectorStore bean。
 
     @Bean(name = "titleChatClient")// 生成Title
     @Scope("prototype") // 设置为prototype，每次请求时创建新实例
@@ -159,24 +147,14 @@ public class JaneAIConfiguration{
     @Scope("prototype")
 //   RAG Client
     public ChatClient RAGchatClient(
-            OllamaChatModel ollamaChatModel,
-            OpenAiChatModel openAiChatModel,
-            DeepSeekChatModel deepSeekChatModel,
-            ChatMemory chatMemory,
-            @Qualifier("titleChatClient") ObjectFactory<ChatClient> titleChatClientFactory,
-//    public ChatClient RAGchatClient(OpenAiChatModel chatModel, ChatMemory chatMemory, @Qualifier("titleChatClient") ChatClient chatClient,
-//    public ChatClient RAGchatClient(DeepSeekChatModel chatModel, ChatMemory chatMemory, @Qualifier("titleChatClient") ChatClient chatClient,
-                                    MarkdownLoader markdownLoader, VectorStore vectorStore,
-                                    JaneMarkController janeMarkController,
-                                    ModelService modelService) {
-//        List<Document> documents = markdownLoader.loadMarkdowns();
-//        int batchSize = 10;
-//        for (int i = 0; i < documents.size(); i += batchSize) {
-//            int end = Math.min(i + batchSize, documents.size());
-//            List<Document> batch = documents.subList(i, end);
-//            vectorStore.add(batch); // 每次添加不超过 10 条
-//        }
-        //限制	embedding 一次最多传 10 条，太多会报 400
+             OllamaChatModel ollamaChatModel,
+             OpenAiChatModel openAiChatModel,
+             DeepSeekChatModel deepSeekChatModel,
+             ChatMemory chatMemory,
+             @Qualifier("titleChatClient") ObjectFactory<ChatClient> titleChatClientFactory,
+                                     VectorStore vectorStore,
+                                     JaneMarkController janeMarkController,
+                                       ModelService modelService) {
 
         // 根据当前选择的模型动态创建ChatClient
         String currentModel = modelService.getCurrentModel();

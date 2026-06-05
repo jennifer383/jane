@@ -48,10 +48,15 @@
                 <div class="contact-text">
                    <p><strong>
 
-        💬 **技术交流** | 🐛 **问题反馈** | 💡 **功能建议** 
+        💬 **技术交流** | 🐛 **问题反馈** | 💡 **功能建议** | 📦 **项目地址**
 
 扫描二维码添加微信，备注“Jane AI交流”
 我们将邀请您加入技术讨论群，与开发者直接沟通！</strong></p>
+                   <p class="project-link-container">
+                     <a href="https://github.com/jennifer383/jane.git" class="project-link" target="_blank">
+                       <i class="fab fa-github"></i> https://github.com/jennifer383/jane.git
+                     </a>
+                   </p>
                  </div>
                 
                 <div class="qr-code-section">
@@ -121,7 +126,7 @@
       </transition>
       <div class="disclaimer">
         JaneAI 可能会生成不准确的信息，不代表真实情况。
-        <a href="#">使用条款</a> | <a href="#">隐私政策</a>
+        <a href="#">使用条款</a> | <a href="#">隐私政策</a> | <a href="https://github.com/jennifer383/jane.git" class="project-link" target="_blank">项目地址</a>
       </div>
     </div>
 
@@ -1371,6 +1376,37 @@ onUnmounted(() => {
 .project-link:hover {
   color: var(--primary-dark);
   text-decoration: underline;
+}
+
+/* 教程界面项目链接样式 */
+.tutorial-info .project-link-container {
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+.tutorial-info .project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--primary);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  font-size: 14px;
+}
+
+.tutorial-info .project-link:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  text-decoration: none;
+}
+
+.tutorial-info .project-link i {
+  font-size: 16px;
 }
 
 .tutorial-description {

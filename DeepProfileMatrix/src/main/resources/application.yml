@@ -66,7 +66,7 @@ spring:
   # OpenAI 兼容接口配置
     openai:
       base-url: ${OPENAI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}  # 阿里云兼容接口
-      api-key: ${OPENAI_API_KEY:sk-87ef17c0ca8444c2a052154d7c0423ae}  # 通过环境变量注入API密钥
+      api-key: ${OPENAI_API_KEY:sk-179ed86bd5c24ab8b646508615afd0f5}  # 通过环境变量注入API密钥
       chat:
         options:
           model: ${OPENAI_MODEL:qwen-turbo}  # 使用的模型

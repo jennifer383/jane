@@ -3,6 +3,12 @@
     <h1 class="welcome-title">欢迎使用 JaneAI</h1>
     <p class="welcome-subtitle">我是您的AI助手，可以帮助您解答问题、生成内容、分析数据等。请随时向我提问，我会尽力提供准确、有用的信息。</p>
     
+    <div class="project-link-container">
+      <a href="https://github.com/jennifer383/jane.git" class="project-link" target="_blank">
+        <i class="fab fa-github"></i> 查看项目地址
+      </a>
+    </div>
+    
     <div class="features-grid">
       <div class="feature-card">
         <div class="feature-icon">
@@ -99,6 +105,35 @@
     font-size: 14px;
     color: var(--text-secondary);
     line-height: 1.5;
+  }
+  
+  .project-link-container {
+    margin: 20px 0;
+  }
+  
+  .project-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--primary);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  
+  .project-link:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  
+  .project-link i {
+    font-size: 18px;
   }
   
   @media (max-width: 768px) {

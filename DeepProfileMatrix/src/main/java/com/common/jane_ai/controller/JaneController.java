@@ -51,7 +51,7 @@ public class JaneController {
         try {
             // 每次请求时动态获取最新的ChatClient实例，确保使用当前选择的模型
             // 使用普通的chatClient，不依赖Pinecone向量数据库，避免Stream processing failed
-            ChatClient currentChatClient = chatClientFactory.getObject();
+            ChatClient currentChatClient = rag_Pinecone_chatClientFactory.getObject();
             // 该方法通过一系列链式调用来构建和发送用户提示，并获取响应内容
             // 使用流式调用，逐块返回响应内容
             return currentChatClient.prompt() // 调用chatClient的prompt方法开始构建用户提示
