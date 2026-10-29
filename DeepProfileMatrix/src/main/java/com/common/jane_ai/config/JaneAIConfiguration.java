@@ -41,10 +41,10 @@ import static com.common.jane_ai.constant.JaneDescConstant.*;
 @Configuration
 public class JaneAIConfiguration{
 
-    @Value("${spring.ai.vectorstore.pinecone.api-key}")
-    private String pineconeApiKey;
-    @Value("${spring.ai.vectorstore.pinecone.index-name}")
-    private String pineconeIndexName;
+//    @Value("${spring.ai.vectorstore.pinecone.api-key}")
+//    private String pineconeApiKey;
+//    @Value("${spring.ai.vectorstore.pinecone.index-name}")
+//    private String pineconeIndexName;
 
     @Autowired
     private RedisChatHistoryAdvisorService redisChatHistoryAdvisorService;
@@ -70,9 +70,6 @@ public class JaneAIConfiguration{
     // 并转为字符串，也就是“13 位的 Unix 毫秒时间戳字符串”（例如：1712345678901）
 
 
-
-    // 注意：保留配置在 application.yml；Spring AI 的自动配置会创建 `vectorStore` bean。
-    // 为避免与自动配置产生 bean 名称冲突，这里不再手动定义 VectorStore bean。
 
     @Bean(name = "titleChatClient")// 生成Title
     @Scope("prototype") // 设置为prototype，每次请求时创建新实例
@@ -143,16 +140,16 @@ public class JaneAIConfiguration{
                 .build();
     }
 
+    // 保留原 Bean 名称兼容现有注入；向量检索暂时注释，继续提供对话记忆和工具调用。
     @Bean(name = "RAG_Pinecone_chatClient")
     @Scope("prototype")
-//   RAG Client
     public ChatClient RAGchatClient(
              OllamaChatModel ollamaChatModel,
              OpenAiChatModel openAiChatModel,
              DeepSeekChatModel deepSeekChatModel,
              ChatMemory chatMemory,
              @Qualifier("titleChatClient") ObjectFactory<ChatClient> titleChatClientFactory,
-                                     VectorStore vectorStore,
+//                                     VectorStore vectorStore,
                                      JaneMarkController janeMarkController,
                                        ModelService modelService) {
 
@@ -184,13 +181,14 @@ public class JaneAIConfiguration{
                                 .chatMemory(chatMemory).chatClient(titleChatClient)
                                 .build(),
                         MessageChatMemoryAdvisor.builder(chatMemory)
-                                .order(JANE_CHAT_MEMORY_ADVISOR_ORDER).build(),
-                        QuestionAnswerAdvisor.builder(vectorStore)
-                                .searchRequest(SearchRequest.builder()
-                                        .similarityThreshold(0.7)//相似度赋值
-                                        .topK(8)// 返回的相似文档数量
-                                        .build())
-                                .build()
+                                .order(JANE_CHAT_MEMORY_ADVISOR_ORDER).build()
+//                        ,
+//                        QuestionAnswerAdvisor.builder(vectorStore)
+//                                .searchRequest(SearchRequest.builder()
+//                                        .similarityThreshold(0.7)//相似度赋值
+//                                        .topK(8)// 返回的相似文档数量
+//                                        .build())
+//                                .build()
                         //ChatClient 会自动从向量数据库中检索相关文档，并将这些文档作为上下文拼接进用户提问的 Prompt 中（也就是放进 Q）去参与问答生成
                 );
 

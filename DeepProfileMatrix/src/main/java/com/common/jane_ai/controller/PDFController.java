@@ -27,7 +27,7 @@ public class PDFController {
     @Autowired
     private PDFService pdfService;
 
-    @RepateExecuteLimit(type = JaneTypeConstant.PDF_MIDENG, userId = "#userId", durationTime = 300L)
+//    @RepateExecuteLimit(type = JaneTypeConstant.PDF_MIDENG, userId = "#userId", durationTime = 300L)
     @PostMapping(value="/upload",produces = "text/html;charset=utf-8")//30分钟幂等防止多次文档上传                 /请求体
     public Flux<String> upload(@RequestParam MultipartFile file,@RequestHeader String userId, @RequestHeader String chatId) {
         log.info("上传PDF文件-{}",chatId);

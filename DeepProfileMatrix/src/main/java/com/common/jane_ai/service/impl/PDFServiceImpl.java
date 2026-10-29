@@ -21,6 +21,7 @@ import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -40,13 +41,10 @@ import static com.common.jane_ai.constant.JaneTypeConstant.USER_ID;
 @Slf4j
 public class PDFServiceImpl implements PDFService {
 
-    @Autowired
-    @Qualifier("chatClient")
-    private ChatClient chatClient;
-
+    // 每次分析简历时获取 prototype 客户端，避免一直使用服务启动时的默认模型。
     @Autowired
     @Qualifier("RAG_Pinecone_chatClient")
-    private ChatClient rag_Pinecone_chatClient;
+    private ObjectFactory<ChatClient> ragPineconeChatClientFactory;
 
     @Autowired
     private PDFlocalCache pdflocalCache;
@@ -74,14 +72,14 @@ public class PDFServiceImpl implements PDFService {
         pdflocalCache.putpdfFile(fileKey, text);
         log.info("PDF文件已解析并存储上下文-{}", userId);
 
-        // 🌟 3. 新增核心逻辑：将文本切片并异步/同步存入 Pinecone 向量数据库
-        try {
-            storeToPinecone(text, userId);
-            log.info("✅ PDF文本已成功切块、向量化并存入 Pinecone, userId: {}", userId);
-        } catch (Exception e) {
-            log.error("❌ 存入 Pinecone 失败: {}", e.getMessage(), e);
-            // 这里看你的业务逻辑，通常存向量失败不应该影响用户看摘要，所以只打印日志，不抛异常中断流程
-        }
+        // 3. 暂停简历向量化入库；保留原逻辑，恢复向量服务后取消下方注释即可重新启用。
+        // try {
+        //     storeToPinecone(text, userId);
+        //     log.info("✅ PDF文本已成功切块、向量化并存入 Pinecone, userId: {}", userId);
+        // } catch (Exception e) {
+        //     log.error("❌ 存入 Pinecone 失败: {}", e.getMessage(), e);
+        //     // 向量入库失败仅记录日志，继续简历分析。
+        // }
         // 4. 调用 chatid 对应 chatclient 进行会话解析并返回流
         return PDFchat(chatId, text);
 
@@ -133,7 +131,9 @@ public class PDFServiceImpl implements PDFService {
      * @param text
      */
     public Flux<String> PDFchat(String chatId, String text) {
-        return rag_Pinecone_chatClient.prompt() // 调用chatClient的prompt方法开始构建用户提示
+        // 同时创建当前模型对应的对话客户端和标题客户端，并保留工具调用能力。
+        ChatClient currentChatClient = ragPineconeChatClientFactory.getObject();
+        return currentChatClient.prompt() // 调用chatClient的prompt方法开始构建用户提示
                 .user(JANE_PDF_FILE + text)
                 .system(JANE_PDF_DESC)
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId)
@@ -143,7 +143,7 @@ public class PDFServiceImpl implements PDFService {
     }
 
     /**
-     * 🌟 新增方法：负责将长文本切片并写入 Pinecone
+     * 负责将长文本切片并写入 Pinecone；当前调用入口已注释，保留实现供后续恢复。
      */
     private void storeToPinecone(String text, String userId) {
         // 1. 构建元数据 Metadata (必须用可变的 Map，方便后续动态添加)

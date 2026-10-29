@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +39,7 @@ public class ChatController {
     private static final Logger log = LoggerFactory.getLogger(ChatController.class);
     @Autowired
     @Qualifier("chatClient")
-    private ChatClient chatClient;
+    private ObjectFactory<ChatClient> chatClientFactory;
 
     @Value("${spring.ai.ollama.chat.model:}")
     private String ollamaModel;
@@ -51,7 +52,7 @@ public class ChatController {
 
     @Autowired
     @Qualifier("RAG_Pinecone_chatClient")
-    private ChatClient ragPineconeChatClient;
+    private ObjectFactory<ChatClient> ragPineconeChatClientFactory;
 
     @Autowired
     private AsyncService asyncService;
@@ -70,8 +71,9 @@ public class ChatController {
         log.info("REQUEST_CONTROLLER-"+Thread.currentThread().getName());
 
 
-        // 该方法通过一系列链式调用来构建和发送用户提示，并获取响应内容
-        return chatClient.prompt() // 调用chatClient的prompt方法开始构建用户提示
+        // 按本次请求时选择的模型创建客户端，避免复用启动时注入的旧客户端。
+        ChatClient currentChatClient = chatClientFactory.getObject();
+        return currentChatClient.prompt() // 调用chatClient的prompt方法开始构建用户提示
                 .user(prompt) // 设置用户提示的内容为prompt
                 //你配置一次，多个 advisor 会“监听”自己关心的参数，然后各自执行自己的逻辑。
                 .advisors(a->a.param(ChatMemory.CONVERSATION_ID,chatId)
@@ -132,9 +134,11 @@ public class ChatController {
 
         // 如果没有文件，直接返回普通聊天响应
         if (files == null || files.isEmpty()) {
-            return chatClient.prompt().user(prompt).stream().content();
+            return chatClientFactory.getObject().prompt().user(prompt).stream().content();
         }
 
+        // 在异步解析文件前获取当前客户端，确保本次上传使用请求开始时选择的模型。
+        ChatClient currentChatClient = ragPineconeChatClientFactory.getObject();
         // 使用异步方式处理所有PDF文件
         return Mono.fromFuture(() -> {
             // 异步提取所有PDF文件内容
@@ -166,14 +170,14 @@ public class ChatController {
         }).flatMapMany(ctx -> {
             // 根据是否有提取内容选择不同的聊天客户端
             if (ctx.length() > 0) {
-                return ragPineconeChatClient.prompt()
+                return currentChatClient.prompt()
                         .user(prompt + "\n\n附加上下文（来自上传文件）:\n" + ctx)
                         .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId)
                                 .param(USER_ID, BaseParameterHolder.getBaseParameter(USER_ID)))
                         .stream()
                         .content();
             }
-            return chatClient.prompt().user(prompt).stream().content();
+            return currentChatClient.prompt().user(prompt).stream().content();
         });
     }
 
