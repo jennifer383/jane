@@ -48,6 +48,9 @@ public class JaneController {
     public Flux<String> chat(@RequestParam("prompt") String prompt,
                              @RequestParam("chatId") String chatId){
         log.info("REQUEST_CONTROLLER-"+Thread.currentThread().getName());
+        // 在请求线程中捕获身份，工具执行时可能已切换到异步线程。
+        String currentUserId = BaseParameterHolder.getBaseParameter(USER_ID);
+        Map<String, Object> toolContext = Map.of(USER_ID, currentUserId == null ? "0" : currentUserId);
         try {
             // 每次请求时动态获取最新的ChatClient实例，确保使用当前选择的模型
             // 使用普通的chatClient，不依赖Pinecone向量数据库，避免Stream processing failed
@@ -56,6 +59,7 @@ public class JaneController {
             // 使用流式调用，逐块返回响应内容
             return currentChatClient.prompt() // 调用chatClient的prompt方法开始构建用户提示
                     .user(prompt) // 设置用户提示的内容为prompt
+                    .toolContext(toolContext)
                     //你配置一次，多个 advisor 会“监听”自己关心的参数，然后各自执行自己的逻辑。
                     .advisors(a->a.param(ChatMemory.CONVERSATION_ID,chatId)
                             .param(USER_ID, BaseParameterHolder.getBaseParameter(USER_ID))

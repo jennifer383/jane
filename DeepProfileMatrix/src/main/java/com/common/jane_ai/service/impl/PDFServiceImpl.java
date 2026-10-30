@@ -131,11 +131,13 @@ public class PDFServiceImpl implements PDFService {
      * @param text
      */
     public Flux<String> PDFchat(String chatId, String text) {
+        String currentUserId = BaseParameterHolder.getBaseParameter(USER_ID);
         // 同时创建当前模型对应的对话客户端和标题客户端，并保留工具调用能力。
         ChatClient currentChatClient = ragPineconeChatClientFactory.getObject();
         return currentChatClient.prompt() // 调用chatClient的prompt方法开始构建用户提示
                 .user(JANE_PDF_FILE + text)
                 .system(JANE_PDF_DESC)
+                .toolContext(Map.of(USER_ID, currentUserId == null ? "0" : currentUserId))
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId)
                         .param(USER_ID, BaseParameterHolder.getBaseParameter(USER_ID))
                 ).stream()

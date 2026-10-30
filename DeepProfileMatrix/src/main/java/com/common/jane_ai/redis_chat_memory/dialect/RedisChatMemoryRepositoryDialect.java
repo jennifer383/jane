@@ -101,7 +101,7 @@ public class RedisChatMemoryRepositoryDialect {
 
         //触发查询请求的时候有可能为DB中也有可能在redis,先查询一次db，如果没有就直接查redis，有的话就异步把db同步到redis
         //先查缓存，没有再查数据库
-        long start = Math.max(0, size - 21);
+        long start = Math.max(0, (size == null ? 0 : size) - 21);
         List<Object> range = redisTemplate.opsForList().range(key, start, -1);
         //缓存中没有
         if(range == null || range.size() == 0){
@@ -130,7 +130,9 @@ public class RedisChatMemoryRepositoryDialect {
     public List<Object> searchFromPg(String conversationId){
         log.info("会话记忆-searchFromPg-" + conversationId);
         LambdaQueryWrapper<ChatMessage> queryWrapper = Wrappers.lambdaQuery(ChatMessage.class)
-                .eq(ChatMessage::getChatId, conversationId);
+                .eq(ChatMessage::getChatId, conversationId)
+                // 数据库回源也必须按登录用户隔离，不能仅凭会话 ID 查询。
+                .eq(ChatMessage::getUserId, BaseParameterHolder.getBaseParameter(USER_ID));
         List<ChatMessage> chatMessages = chatMessageMapper.selectList(queryWrapper);
         return new ArrayList<>(chatMessages);
     }

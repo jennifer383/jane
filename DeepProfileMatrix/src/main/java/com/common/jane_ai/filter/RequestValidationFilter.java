@@ -58,7 +58,7 @@ public class RequestValidationFilter implements Filter {
                 //预检请求不只是需要返回 200，还必须附带完整的 CORS 响应头
                 //✅这是浏览器的安全策略决定的特性，与 fetch、axios 无关 ——
                 // 无论你用哪种请求库，只要发生了跨域并包含了“复杂请求”条件，浏览器就一定会自动发起 预检请求（OPTIONS）。
-                log.info("OPTIONS请求"+request.getRequestURI()+request.getHeader("Authorization")+request.getHeader("UserId"));
+                log.info("OPTIONS请求 {}", request.getRequestURI());
                 response.setHeader("Access-Control-Allow-Origin", "*");
                 response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
                 response.setHeader("Access-Control-Allow-Headers", "*");
@@ -117,7 +117,8 @@ public class RequestValidationFilter implements Filter {
         BaseParameterHolder.setBaseParameter(AUTHORIZATION, token);
         
         log.info("用户登录-id：{}", BaseParameterHolder.getBaseParameter(USER_ID));
-        log.info("用户登录-token：{}", BaseParameterHolder.getBaseParameter(AUTHORIZATION));
+        // 仅记录认证凭据是否存在，避免插件登录后的 JWT 被写入日志。
+        log.debug("用户请求携带认证凭据：{}", token != null && !token.isBlank());
         
         String path = request.getRequestURI();//请求路径
         log.info("用户请求开始-path-{}", path);

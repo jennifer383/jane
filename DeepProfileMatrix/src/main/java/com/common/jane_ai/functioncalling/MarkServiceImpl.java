@@ -1,73 +1,30 @@
 package com.common.jane_ai.functioncalling;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.common.jane_ai.Obj.entity.PDFentity;
-import com.common.jane_ai.mapper.PDFMapper;
+import com.common.jane_ai.service.impl.AgentSystemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Wrapper;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Slf4j
 @Service
 public class MarkServiceImpl {
 
     @Autowired
-    private PDFMapper pdfMapper;
+    private AgentSystemService agentSystemService;
 
-    /**
-     * 后期并发量高可以用 redis 缓存
-     * @param score
-     * @param userName
-     * @param password
-     * @return
-     */
-    @Transactional
-    public String mark(Double score,String userName,String password) {
-        log.info("上传用户分数+"+score+":"+Thread.currentThread().getName());
-        LambdaQueryWrapper<PDFentity> wrapper = Wrappers.lambdaQuery(PDFentity.class)
-                .eq(PDFentity::getUserName, userName)
-                .eq(PDFentity::getStatus, true);
-        PDFentity pdfentity = pdfMapper.selectOne(wrapper);
-
-        if(pdfentity!=null){//  有数据
-
-            if(!pdfentity.getPassword().equals(password)){
-                return "密码或用户名错误";
-            }
-
-            LambdaUpdateWrapper<PDFentity> updateWrapper = Wrappers.lambdaUpdate(PDFentity.class)
-                    .set(PDFentity::getPdfScore, score)
-                    .setIncrBy(PDFentity::getPdfUpdateCount, 1L)
-                    .set(PDFentity::getUpdateTime, LocalDateTime.now())
-                    .eq(PDFentity::getUserName, userName);
-            try {
-                pdfMapper.update(null,updateWrapper);
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.info("更新用户分数失败");
-            }
-        }else {
-            pdfentity = new PDFentity();
-            pdfentity.setUserId(1L);
-            pdfentity.setUserName(userName);
-            pdfentity.setPdfScore(score);
-            pdfentity.setStatus(true);
-            pdfentity.setPdfUpdateCount(1);
-            pdfentity.setPassword(password);
-            try {
-                pdfMapper.insert(pdfentity);
-            } catch (Exception e) {
-                e.printStackTrace();
-                log.info("上传用户分数失败");
-            }
+    /** 旧 Agent 与 MCP 共用评分保存逻辑，userId 必须来自服务端工具上下文。 */
+    public String mark(Double score, long userId) {
+        if (userId <= 0) {
+            return "上传失败，请先登录 Jane 系统";
         }
-
+        if (score == null || !Double.isFinite(score) || score < 0 || score > 100) {
+            return "上传失败，评分必须在 0 到 100 之间";
+        }
+        // 由事务服务处理失败，不再吞掉数据库异常后返回上传成功。
+        agentSystemService.saveScoreForUser(BigDecimal.valueOf(score), userId);
+        log.info("用户评分保存成功，userId={}", userId);
         return "上传成功";
     }
 }

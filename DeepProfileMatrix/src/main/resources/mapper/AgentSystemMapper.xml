@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.common.jane_ai.mapper.AgentSystemMapper">
+    <!-- 不返回账号密码；业务身份始终来自已验证的登录用户。 -->
+    <select id="account" resultType="map">
+        SELECT id AS userId, username FROM `user` WHERE id = #{userId}
+    </select>
+    <select id="lockAccount" resultType="java.lang.Long">
+        SELECT id FROM `user` WHERE id = #{userId} FOR UPDATE
+    </select>
+    <select id="currentScore" resultType="map">
+        SELECT id, pdf_score AS score, pdf_update_count AS updateCount
+        FROM jlpdf WHERE user_id = #{userId} AND status = 1
+        ORDER BY update_time DESC, id DESC LIMIT 1
+    </select>
+    <insert id="insertScore">
+        <!-- 展示姓名取真实登录账号，不再让模型提供用户名和密码。 -->
+        INSERT INTO jlpdf (id, user_id, user_name, pdf_score, pdf_update_count, status, create_time, update_time)
+        SELECT #{id}, id, username, #{score}, 1, 1, NOW(), NOW() FROM `user` WHERE id = #{userId}
+    </insert>
+    <update id="updateScore">
+        UPDATE jlpdf SET pdf_score = #{score},
+            user_name = (SELECT username FROM `user` WHERE id = #{userId}),
+            pdf_update_count = COALESCE(pdf_update_count, 0) + 1,
+            update_time = NOW()
+        WHERE id = #{id} AND user_id = #{userId} AND status = 1
+    </update>
+</mapper>

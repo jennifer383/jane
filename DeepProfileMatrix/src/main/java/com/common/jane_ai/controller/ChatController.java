@@ -132,9 +132,13 @@ public class ChatController {
                                        @RequestHeader @NotBlank(message = "chatId不能为空") String chatId,
                                        @RequestHeader @NotBlank(message = "userId不能为空") String userId) {
 
+        // 只使用过滤器验证过的身份，并在解析文件、切换线程之前保存。
+        String currentUserId = BaseParameterHolder.getBaseParameter(USER_ID);
+        Map<String, Object> toolContext = Map.of(USER_ID, currentUserId == null ? "0" : currentUserId);
+
         // 如果没有文件，直接返回普通聊天响应
         if (files == null || files.isEmpty()) {
-            return chatClientFactory.getObject().prompt().user(prompt).stream().content();
+            return chatClientFactory.getObject().prompt().user(prompt).toolContext(toolContext).stream().content();
         }
 
         // 在异步解析文件前获取当前客户端，确保本次上传使用请求开始时选择的模型。
@@ -172,12 +176,13 @@ public class ChatController {
             if (ctx.length() > 0) {
                 return currentChatClient.prompt()
                         .user(prompt + "\n\n附加上下文（来自上传文件）:\n" + ctx)
+                        .toolContext(toolContext)
                         .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, chatId)
-                                .param(USER_ID, BaseParameterHolder.getBaseParameter(USER_ID)))
+                                .param(USER_ID, currentUserId))
                         .stream()
                         .content();
             }
-            return currentChatClient.prompt().user(prompt).stream().content();
+            return currentChatClient.prompt().user(prompt).toolContext(toolContext).stream().content();
         });
     }
 

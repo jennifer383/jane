@@ -34,10 +34,11 @@ public class RequestUserStrategyImpl implements RequestValidationStrategy {
     public boolean matching(String Path) {
         String userIdStr = BaseParameterHolder.getBaseParameter(USER_ID);
         // 添加空指针和空字符串检查，避免NumberFormatException
-        if(USER_PATTERNS.contains(Path) && userIdStr != null && !userIdStr.isEmpty()){
+        // Agent 接口必须使用已登录用户，不能落入游客或免认证策略。
+        if((USER_PATTERNS.contains(Path) || Path.startsWith("/jane/agent/")) && userIdStr != null && !userIdStr.isEmpty()){
             try {
-                int userId = Integer.parseInt(userIdStr);
-                return userId != 0;
+                long userId = Long.parseLong(userIdStr);
+                return userId > 0;
             } catch (NumberFormatException e) {
                 log.error("Invalid userId format: {}", userIdStr);
                 return false;

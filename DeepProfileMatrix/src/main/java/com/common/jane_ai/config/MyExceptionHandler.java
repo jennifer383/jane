@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 
 import org.springframework.validation.BindException;
 import java.io.IOException;
@@ -18,6 +20,12 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestControllerAdvice(basePackages = "com.common.jane_ai.controller")
 public class MyExceptionHandler {
+    /** 保留业务接口明确指定的 HTTP 状态，便于插件识别登录失效和参数错误。 */
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<ApiResponse> handleResponseStatusException(ResponseStatusException e) {
+        return ResponseEntity.status(e.getStatusCode()).body(ApiResponse.error(e.getReason()));
+    }
+
     /**
      * 自定义异常
      * @param e
